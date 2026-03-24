@@ -1,0 +1,1 @@
+# Web app interface: Scrape websites and gather information/context on the entire content/specific content present
