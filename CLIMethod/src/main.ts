@@ -1,5 +1,3 @@
-// TODO Send website content to gather information
-// TODO Return LLM Response to User
 // TODO Provide Functionality that allows users to select specific tags to be parsed by the LLM and leave other content alone (for example, additional prompt which allows the user to provide input: "links" = scrape all links
 // present recursively and pass links found straight to the user (don't pass to the LLM), "text" = only parse and pass text tags to the LLM (only h1-h6, p, span, etc.), "images" for images only, and if no input is provided, it scrapes everything and passes
 // it to the LLM, etc.)
@@ -7,17 +5,19 @@
 // TODO Error handling in all steps
 // TODO DB Functionality (Allow storage of scraped data to be stored in a DB (as well as images/objects to be stored in an object storage (S3, etc.)))
 
-
+import 'dotenv/config';
 import chalk from 'chalk';
 import { input } from '@inquirer/prompts';
 import {oraPromise} from 'ora';
 import {fetchWebsiteContent} from './scraping/scraping.ts';
+import {analyzeWebsiteContentLLM} from './ai/ai.ts';
 
 
 let log = console.log;
 let warningColor = chalk.black.bgYellowBright
 let errorColor = chalk.black.bgRedBright;
 let standardColor = chalk.whiteBright;
+let aiColor = chalk.black.bgCyanBright
 
 
 async function main() {
@@ -42,7 +42,12 @@ async function main() {
     let userQuestion = await input({message: 'Would you like to know anything specific about this website? Leave blank if not.'});
     log(standardColor(`Response received -> ${userQuestion}\n\n`));
 
-
+    try {
+        log(aiColor(`AI RESPONSE HAS STARTED:\n\n`))
+        analyzeWebsiteContentLLM(fetchResult, userQuestion);
+    } catch (error) {
+        console.error(errorColor(`An error occurred during the AI generation portion of this script -> ${error}`));
+    }
 
 
 
